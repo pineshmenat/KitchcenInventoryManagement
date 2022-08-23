@@ -17,6 +17,7 @@ exports.getAllFoods = function getAllFoods(req, res) {
 
 exports.getFood = function getFood(req, res) {
   const name = req.params.id;
+  console.log(name);
   let food = foods.find((food) => food.name === name);
   if (!food)
     res.status(400).json({
