@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
   //Blueprint
@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     minLength: 2,
     maxLength: 100,
-    required: true,
+    required: [true, 'User must have a firstname']
   },
   lastName: {
     type: String,
@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     minLength: 2,
     maxLength: 100,
-    required: true,
+    required: true
   },
   email: {
     type: String,
@@ -25,23 +25,23 @@ const UserSchema = new mongoose.Schema({
     minLength: 4,
     maxLength: 100,
     unique: true,
-    required: true,
+    required: true
   },
   password: {
     type: String,
     trim: true,
     minLength: 8,
     maxLength: 1024,
-    required: true,
+    required: true
   },
   isAdmin: {
     type: Boolean,
-    default: false,
+    default: false
   },
-  createdOn: { type: Date, default: Date.now },
+  createdOn: { type: Date, default: Date.now }
 });
 
-const User = mongoose.model("User", UserSchema); // Class
+const User = mongoose.model('User', UserSchema); // Class
 
 module.exports = { UserSchema, User };
 

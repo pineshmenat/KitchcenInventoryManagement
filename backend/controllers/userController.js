@@ -1,24 +1,16 @@
-const { Food } = require('../models/Food');
-
-// 2. controllers
-
-// exports.checkId = function checkId(req, res, next, val) {
-//   console.log(`Id is ${val}`);
-//   const name = req.params.id;
-//   const foodIndex = foods.findIndex(food => food.name === name);
-//   if (foodIndex === -1)
-//     return res.status(400).json({
-//       status: 'error',
-//       message: 'Invalid Id'
-//     });
-//   next();
-// };
+const { User } = require('../models/User');
 
 exports.checkBody = function checkBody(req, res, next) {
   if (req.method === 'GET') next();
   const { body } = req;
-  console.log(body);
-  if (body.name && body.price) next();
+  if (
+    body.firstName &&
+    body.lastName &&
+    body.email &&
+    body.password &&
+    body.isAdmin
+  )
+    next();
   else
     return res.status(400).json({
       status: 'error',
@@ -26,13 +18,18 @@ exports.checkBody = function checkBody(req, res, next) {
     });
 };
 
-exports.getAllFoods = async function getAllFoods(req, res) {
+exports.getAllUsers = async function getAllUsers(req, res) {
   try {
-    const foods = await Food.find();
+    const users = await User.find();
+    const withourPswdUsers = users.map(user => {
+      // eslint-disable-next-line no-unused-vars
+      const { userWoPswd, password } = user;
+      return userWoPswd;
+    });
     res.status(200).json({
       status: 'success',
-      count: foods.length,
-      data: { foods }
+      count: withourPswdUsers.length,
+      data: { withourPswdUsers }
     });
   } catch (err) {
     res.status(404).json({
@@ -42,13 +39,14 @@ exports.getAllFoods = async function getAllFoods(req, res) {
   }
 };
 
-exports.getFood = async function getFood(req, res) {
+exports.getUser = async function getUser(req, res) {
   try {
-    const food = await Food.findById(req.params.id);
+    const user = await User.findById(req.params.id);
+    delete user.password;
     res.status(200).json({
       status: 'success',
-      count: food.length,
-      data: { food }
+      count: user.length,
+      data: { user }
     });
   } catch (err) {
     res.status(404).json({
@@ -58,11 +56,11 @@ exports.getFood = async function getFood(req, res) {
   }
 };
 
-exports.createFood = async function createFood(req, res) {
+exports.createUser = async function createUser(req, res) {
   try {
-    const food = new Food(req.body);
-
-    const result = await food.save();
+    const user = new User(req.body);
+    const result = await user.save();
+    delete result.password;
 
     res.status(201).json({
       status: 'success',
@@ -76,16 +74,16 @@ exports.createFood = async function createFood(req, res) {
   }
 };
 
-exports.updateFood = async function updateFood(req, res) {
+exports.updateUser = async function updateUser(req, res) {
   // https://mongoosejs.com/docs/api/model.html#model_Model-findByIdAndUpdate
   try {
-    const food = await Food.findByIdAndUpdate(req.params.id, req.body, {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true, //new doc will be returned
       runValidators: true // run schema validations again
     });
     res.status(200).json({
       status: 'success',
-      data: { food }
+      data: { user }
     });
   } catch (err) {
     res.status(404).json({
@@ -95,12 +93,12 @@ exports.updateFood = async function updateFood(req, res) {
   }
 };
 
-exports.removeFood = async function removeFood(req, res) {
+exports.removeUser = async function removeUser(req, res) {
   try {
-    const food = await Food.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: 'success',
-      data: { food }
+      data: { user }
     });
   } catch (err) {
     res.status(404).json({

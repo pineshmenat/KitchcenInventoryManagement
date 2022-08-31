@@ -1,24 +1,9 @@
-const { Food } = require('../models/Food');
-
-// 2. controllers
-
-// exports.checkId = function checkId(req, res, next, val) {
-//   console.log(`Id is ${val}`);
-//   const name = req.params.id;
-//   const foodIndex = foods.findIndex(food => food.name === name);
-//   if (foodIndex === -1)
-//     return res.status(400).json({
-//       status: 'error',
-//       message: 'Invalid Id'
-//     });
-//   next();
-// };
+const { Category } = require('../models/Category');
 
 exports.checkBody = function checkBody(req, res, next) {
   if (req.method === 'GET') next();
   const { body } = req;
-  console.log(body);
-  if (body.name && body.price) next();
+  if (body.name) next();
   else
     return res.status(400).json({
       status: 'error',
@@ -26,13 +11,13 @@ exports.checkBody = function checkBody(req, res, next) {
     });
 };
 
-exports.getAllFoods = async function getAllFoods(req, res) {
+exports.getAllCategories = async function getAllCategories(req, res) {
   try {
-    const foods = await Food.find();
+    const categories = await Category.find();
     res.status(200).json({
       status: 'success',
-      count: foods.length,
-      data: { foods }
+      count: categories.length,
+      data: { categories }
     });
   } catch (err) {
     res.status(404).json({
@@ -42,13 +27,13 @@ exports.getAllFoods = async function getAllFoods(req, res) {
   }
 };
 
-exports.getFood = async function getFood(req, res) {
+exports.getCategory = async function getCategory(req, res) {
   try {
-    const food = await Food.findById(req.params.id);
+    const category = await Category.findById(req.params.id);
     res.status(200).json({
       status: 'success',
-      count: food.length,
-      data: { food }
+      count: category.length,
+      data: { category }
     });
   } catch (err) {
     res.status(404).json({
@@ -58,11 +43,10 @@ exports.getFood = async function getFood(req, res) {
   }
 };
 
-exports.createFood = async function createFood(req, res) {
+exports.createCategory = async function createCategory(req, res) {
   try {
-    const food = new Food(req.body);
-
-    const result = await food.save();
+    const category = new Category(req.body);
+    const result = await category.save();
 
     res.status(201).json({
       status: 'success',
@@ -76,16 +60,16 @@ exports.createFood = async function createFood(req, res) {
   }
 };
 
-exports.updateFood = async function updateFood(req, res) {
+exports.updateCategory = async function updateCategory(req, res) {
   // https://mongoosejs.com/docs/api/model.html#model_Model-findByIdAndUpdate
   try {
-    const food = await Food.findByIdAndUpdate(req.params.id, req.body, {
+    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
       new: true, //new doc will be returned
       runValidators: true // run schema validations again
     });
     res.status(200).json({
       status: 'success',
-      data: { food }
+      data: { category }
     });
   } catch (err) {
     res.status(404).json({
@@ -95,12 +79,12 @@ exports.updateFood = async function updateFood(req, res) {
   }
 };
 
-exports.removeFood = async function removeFood(req, res) {
+exports.removeCategory = async function removeFood(req, res) {
   try {
-    const food = await Food.findByIdAndDelete(req.params.id);
+    const category = await Category.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: 'success',
-      data: { food }
+      data: { category }
     });
   } catch (err) {
     res.status(404).json({
