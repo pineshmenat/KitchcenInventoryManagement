@@ -10,7 +10,7 @@ const FoodSchema = new mongoose.Schema({
     unique: true,
     required: true
   },
-  category: {
+  categories: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Category',
     required: true
