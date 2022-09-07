@@ -23,13 +23,13 @@ exports.getAllUsers = async function getAllUsers(req, res) {
     const users = await User.find();
     const withourPswdUsers = users.map(user => {
       // eslint-disable-next-line no-unused-vars
-      const { userWoPswd, password } = user;
+      const { password, ...userWoPswd } = user;
       return userWoPswd;
     });
     res.status(200).json({
       status: 'success',
-      count: withourPswdUsers.length,
-      data: { withourPswdUsers }
+      count: users.length,
+      data: { users }
     });
   } catch (err) {
     res.status(404).json({
@@ -42,7 +42,6 @@ exports.getAllUsers = async function getAllUsers(req, res) {
 exports.getUser = async function getUser(req, res) {
   try {
     const user = await User.findById(req.params.id);
-    delete user.password;
     res.status(200).json({
       status: 'success',
       count: user.length,
