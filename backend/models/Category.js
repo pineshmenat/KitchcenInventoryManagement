@@ -8,7 +8,7 @@ const CategorySchema = new mongoose.Schema({
     minLength: 2,
     maxLength: 100,
     unique: true,
-    required: true
+    required: [true, 'Category name is required']
   },
   createdOn: { type: Date, default: Date.now }
 });

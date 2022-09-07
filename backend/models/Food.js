@@ -13,7 +13,7 @@ const FoodSchema = new mongoose.Schema({
   categories: {
     type: [mongoose.Schema.Types.ObjectId],
     ref: 'Category',
-    required: true
+    required: [true, 'Array of category ObjectId/s are required']
   },
   bestBefore: {
     type: Date,
@@ -47,19 +47,22 @@ const FoodSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
     required: true,
-    enum: [
-      'gm',
-      'gms',
-      'kg',
-      'kgs',
-      'liter',
-      'liters',
-      'count',
-      'lb',
-      'lbs',
-      'pound',
-      'pounds'
-    ]
+    enum: {
+      values: [
+        'gm',
+        'gms',
+        'kg',
+        'kgs',
+        'liter',
+        'liters',
+        'count',
+        'lb',
+        'lbs',
+        'pound',
+        'pounds'
+      ],
+      message: '{VALUE} is not supported'
+    }
   },
   createdOn: { type: Date, default: Date.now }
 });
