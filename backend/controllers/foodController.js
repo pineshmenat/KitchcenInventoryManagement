@@ -28,7 +28,32 @@ exports.checkBody = function checkBody(req, res, next) {
 
 exports.getAllFoods = async function getAllFoods(req, res) {
   try {
-    const foods = await Food.find();
+    //FILTERING
+    const queryObj = { ...req.query };
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach(field => delete queryObj[field]);
+
+    //Advanced FILTERING
+    let queryStr = JSON.stringify(queryObj);
+    //Regex to match exactly individual op and not something like ABCDlteEF to prevent this we use \b
+    //e.g. price[lte]=5 => { price: { lte: '5' } } => { price: { '$lte': '5' } }
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+
+    //Querying
+    let query = Food.find(JSON.parse(queryStr));
+
+    //Sorting ?sort=price,quantity => "price quantity"
+    if (req.query.sort) query = query.sort(req.query.sort.split(',').join(' '));
+    else query = query.sort('bestBefore');
+
+    //Projecting/ Field limiting fields=name,price,quantity => "name price quantity"
+    if (req.query.fields)
+      query = query.select(req.query.fields.split(',').join(' '));
+    else query = query.select('-__v');
+
+    //Execute Query by await-ing it
+    const foods = await query;
+
     res.status(200).json({
       status: 'success',
       count: foods.length,
@@ -44,7 +69,12 @@ exports.getAllFoods = async function getAllFoods(req, res) {
 
 exports.getFood = async function getFood(req, res) {
   try {
-    const food = await Food.findById(req.params.id);
+    //Projecting fields
+    const fields = req.query.fields
+      ? req.query.fields.split(',').join(' ')
+      : '-__v';
+
+    const food = await Food.findById(req.params.id, fields);
     res.status(200).json({
       status: 'success',
       count: food.length,
