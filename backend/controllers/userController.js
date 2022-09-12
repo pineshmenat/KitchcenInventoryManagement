@@ -21,11 +21,6 @@ exports.checkBody = function checkBody(req, res, next) {
 exports.getAllUsers = async function getAllUsers(req, res) {
   try {
     const users = await User.find();
-    const withourPswdUsers = users.map(user => {
-      // eslint-disable-next-line no-unused-vars
-      const { password, ...userWoPswd } = user;
-      return userWoPswd;
-    });
     res.status(200).json({
       status: 'success',
       count: users.length,

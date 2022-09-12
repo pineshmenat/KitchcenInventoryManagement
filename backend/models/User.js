@@ -32,7 +32,8 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     minLength: 8,
     maxLength: 1024,
-    required: true
+    required: true,
+    select: false //Permanently hide this field on query
   },
   isAdmin: {
     type: Boolean,
