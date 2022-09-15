@@ -1,4 +1,5 @@
 const { User } = require('../models/User');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.checkBody = function checkBody(req, res, next) {
   if (req.method === 'GET') next();
@@ -20,42 +21,14 @@ exports.checkBody = function checkBody(req, res, next) {
 
 exports.getAllUsers = async function getAllUsers(req, res) {
   try {
-    //FILTERING
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach(field => delete queryObj[field]);
-
-    //Advanced FILTERING
-    let queryStr = JSON.stringify(queryObj);
-    //Regex to match exactly individual op and not something like ABCDlteEF to prevent this we use \b
-    //e.g. price[lte]=5 => { price: { lte: '5' } } => { price: { '$lte': '5' } }
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
-    //Querying
-    let query = User.find(JSON.parse(queryStr));
-
-    //Limiting
-    const limit = req.query.limit ? req.query.limit * 1 : 100;
-    const page = req.query.page ? parseInt(req.query.page, 10) : 1;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const count = await User.countDocuments();
-      if (skip >= count) throw new Error('Page does not exist');
-    }
-
-    //Sorting ?sort=price,quantity => "price quantity"
-    if (req.query.sort) query = query.sort(req.query.sort.split(',').join(' '));
-    else query = query.sort('createdOn');
-
-    //Projecting/ Field limiting fields=name,price,quantity => "name price quantity"
-    if (req.query.fields)
-      query = query.select(req.query.fields.split(',').join(' '));
-    else query = query.select('-__v');
+    const features = new APIFeatures(User.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
     //Execute Query by await-ing it
-    const users = await query;
+    const users = await features.query;
 
     res.status(200).json({
       status: 'success',
