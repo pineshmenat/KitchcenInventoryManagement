@@ -27,6 +27,17 @@ exports.getAllCategories = async function getAllCategories(req, res) {
     //Querying
     let query = Category.find(JSON.parse(queryStr));
 
+    //Limiting
+    const limit = req.query.limit ? req.query.limit * 1 : 100;
+    const page = req.query.page ? parseInt(req.query.page, 10) : 1;
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const count = await Category.countDocuments();
+      if (skip >= count) throw new Error('Page does not exist');
+    }
+
     //Sorting ?sort=price,quantity => "price quantity"
     if (req.query.sort) query = query.sort(req.query.sort.split(',').join(' '));
     else query = query.sort('createdOn');
@@ -67,7 +78,7 @@ exports.getCategory = async function getCategory(req, res) {
   } catch (err) {
     res.status(404).json({
       status: 'error',
-      message: { err }
+      message: { err: err.message ? err.message : err }
     });
   }
 };
